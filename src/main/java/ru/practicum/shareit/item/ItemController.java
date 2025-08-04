@@ -43,7 +43,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getFilmsByQuery(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam String text) {
+    public List<ItemDto> getItemsByQuery(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam String text) {
         return itemService.search(userId, text);
     }
 }
