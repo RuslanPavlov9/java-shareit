@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.service;
 
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
@@ -17,8 +17,8 @@ public interface BookingService {
 
     BookingDto getBooking(Integer userId, Integer bookingId);
 
-    List<BookingDto> getAllBookings(Integer userId, String state);
+    List<BookingDto> getAllBookings(Integer userId, String state, Integer from, Integer size);
 
-    List<BookingDto> getAllBookingsByOwnerId(Integer ownerId, String state);
+    List<BookingDto> getAllBookingsByOwnerId(Integer ownerId, String state, Integer from, Integer size);
 
 }
