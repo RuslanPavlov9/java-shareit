@@ -1,20 +1,13 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public enum BookingStatus {
 
-    WAITING("WAITING"),
+    WAITING,
 
-    APPROVED("APPROVED"),
+    APPROVED,
 
-    REJECTED("REJECTED"),
+    REJECTED,
 
-    CANCELED("CANCELED");
-
-    private final String value;
+    CANCELED
 
 }
