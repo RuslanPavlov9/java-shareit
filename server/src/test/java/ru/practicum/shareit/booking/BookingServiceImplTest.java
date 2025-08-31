@@ -249,7 +249,7 @@ class BookingServiceImplTest {
                 DataValidationException.class,
                 () -> bookingService.updateStatus(3, 1, true)
         );
-        assertEquals(e.getMessage(), "Вы не можете подтверждать это бронирование!");
+        assertEquals(e.getMessage(), "Вы не можете подтверждать это бронирование.");
     }
 
     @Test
