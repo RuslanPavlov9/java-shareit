@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.DataValidationException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -25,8 +26,7 @@ import ru.practicum.shareit.utils.TestingUtils;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -175,4 +175,70 @@ class ItemRequestServiceImplTest {
         List<ItemRequestDto> result = service.getRequests(1, 0, 10);
         assertEquals(expected, result);
     }
+
+    @Test
+    void getRequests_withInvalidPagination() {
+        DataValidationException e = assertThrows(
+                DataValidationException.class,
+                () -> service.getRequests(1, -1, 10)
+        );
+        assertEquals("Offset must not be less than zero!", e.getMessage());
+
+        e = assertThrows(
+                DataValidationException.class,
+                () -> service.getRequests(1, 0, 0)
+        );
+        assertEquals("Limit must not be less than 1!", e.getMessage());
+    }
+
+    @Test
+    void getByRequesterId_emptyList() {
+        when(itemRequestRepository.findAllByRequesterId(anyInt(), any()))
+                .thenReturn(List.of());
+
+        List<ItemRequestDto> result = service.getByRequesterId(1);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getRequests_emptyList() {
+        when(itemRequestRepository.findAllByRequesterIdNot(anyInt(), any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        List<ItemRequestDto> result = service.getRequests(1, 0, 10);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getById_noItems() {
+        ItemRequest request = TestingUtils.createItemRequest(1, 1);
+        when(itemRequestRepository.findById(anyInt())).thenReturn(Optional.of(request));
+        when(itemRepository.getItemsByRequestId(anyInt())).thenReturn(List.of());
+
+        ItemRequestDto result = service.getById(1, 1);
+        assertTrue(result.getItems().isEmpty());
+    }
+
+    @Test
+    void getRequests_withLargePagination() {
+        ItemRequest request = TestingUtils.createItemRequest(1, 1);
+        when(itemRequestRepository.findAllByRequesterIdNot(anyInt(), any()))
+                .thenReturn(new PageImpl<>(List.of(request)));
+        when(itemRepository.getItemsByRequestId(anyInt())).thenReturn(List.of(TestingUtils.createItem(1, 1)));
+
+        List<ItemRequestDto> result = service.getRequests(1, 1000, 100);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getRequests_withSingleResult() {
+        ItemRequest request = TestingUtils.createItemRequest(1, 1);
+        when(itemRequestRepository.findAllByRequesterIdNot(anyInt(), any()))
+                .thenReturn(new PageImpl<>(List.of(request)));
+        when(itemRepository.getItemsByRequestId(anyInt())).thenReturn(List.of(TestingUtils.createItem(1, 1)));
+
+        List<ItemRequestDto> result = service.getRequests(1, 0, 1);
+        assertEquals(1, result.size());
+    }
+
 }

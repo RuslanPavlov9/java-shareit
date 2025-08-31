@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -172,4 +173,16 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.[0].created",
                         is(itemRequestDto.getCreated().format(TestingUtils.DATE_TIME_FORMATTER))));
     }
+
+    @Test
+    void create_withNullDescription() throws Exception {
+        ItemRequestDto dto = TestingUtils.createItemRequestDto();
+        dto.setDescription(null);
+
+        mvc.perform(post("/requests")
+                        .content(mapper.writeValueAsString(dto))
+                        .header(TestingUtils.X_USER_HEADER, 1))
+                .andExpect(status().isBadRequest());
+    }
+
 }

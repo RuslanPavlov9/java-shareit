@@ -31,8 +31,7 @@ import ru.practicum.shareit.utils.TestingUtils;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -375,4 +374,89 @@ class ItemServiceImplTest {
                 .findFirstByBookerIdAndItemIdAndStatusEqualsAndEndIsBefore(anyInt(), anyInt(), any(), any());
         verify(commentRepository, times(1)).save(any());
     }
+
+    @Test
+    void createItem_withNullName() {
+        ItemDto dto = TestingUtils.createItemDto();
+        dto.setName(null);
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.createItem(1, dto)
+        );
+        assertEquals("source cannot be null", e.getMessage());
+    }
+
+    @Test
+    void createItem_withEmptyName() {
+        ItemDto dto = TestingUtils.createItemDto();
+        dto.setName("");
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.createItem(1, dto)
+        );
+        assertEquals("source cannot be null", e.getMessage());
+    }
+
+    @Test
+    void updateItem_partialUpdate() {
+        ItemDto updateDto = new ItemDto();
+        updateDto.setDescription("New description only");
+
+        Item itemBefore = TestingUtils.createItem(1, 1);
+        when(itemRepository.getItemById(1)).thenReturn(itemBefore);
+        when(itemRepository.save(any())).thenReturn(itemBefore);
+
+        ItemDto result = service.updateItem(1, 1, updateDto);
+
+        assertEquals("New description only", result.getDescription());
+        assertEquals(itemBefore.getName(), result.getName()); // имя осталось прежним
+    }
+
+    @Test
+    void search_withVeryLongQuery() {
+        String longQuery = "a".repeat(1000);
+        List<ItemDto> result = service.search(1, longQuery);
+        // Проверяем что не падает и возвращает результат
+    }
+    @Test
+    void getAllItems_emptyList() {
+        when(itemRepository.findAllByOwnerIdOrderById(1)).thenReturn(List.of());
+
+        List<ItemExtendedDto> result = service.getAllItems(1);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getItemById_noComments() {
+        Item item = TestingUtils.createItem(1, 1);
+        when(itemRepository.getItemById(1)).thenReturn(item);
+        when(commentRepository.getAllByItemId(1)).thenReturn(List.of());
+
+        ItemExtendedDto result = service.getItemById(1, 1);
+        assertTrue(result.getComments().isEmpty());
+    }
+
+    @Test
+    void getItemById_noBookings() {
+        Item item = TestingUtils.createItem(1, 1);
+        when(itemRepository.getItemById(1)).thenReturn(item);
+        when(bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByStartDesc(any(), any(), any()))
+                .thenReturn(Optional.empty());
+        when(bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(any(), any(), any()))
+                .thenReturn(Optional.empty());
+
+        ItemExtendedDto result = service.getItemById(1, 1);
+        assertNull(result.getLastBooking());
+        assertNull(result.getNextBooking());
+    }
+
+    @Test
+    void createItem_repositoryThrowsException() {
+        when(userRepository.getUserById(1)).thenReturn(TestingUtils.createUser(1));
+        when(itemRepository.save(any())).thenThrow(new RuntimeException("DB error"));
+
+        assertThrows(RuntimeException.class,
+                () -> service.createItem(1, TestingUtils.createItemDto()));
+    }
+
 }

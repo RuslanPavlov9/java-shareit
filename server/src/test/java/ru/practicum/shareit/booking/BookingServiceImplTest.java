@@ -26,6 +26,8 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.TestingUtils;
 
 import jakarta.validation.ValidationException;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -568,5 +570,21 @@ class BookingServiceImplTest {
 
         List<BookingDto> result = bookingService.getAllBookingsByOwnerId(1, "REJECTED",0, 10);
         assertEquals(result.size(), 1);
+    }
+
+    @Test
+    void getAllBookings_emptyResult() {
+        when(bookingRepository.findAllByBookerId(anyInt(), any()))
+                .thenReturn(List.of());
+
+        List<BookingDto> result = bookingService.getAllBookings(1, "ALL", 100, 10);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void createBooking_startExactlyNow() {
+        BookingCreateDto createDto = TestingUtils.createBookingCreateDto();
+        createDto.setItemId(3);
+        createDto.setStart(LocalDateTime.now().plusSeconds(1));
     }
 }

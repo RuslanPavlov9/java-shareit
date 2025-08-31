@@ -137,4 +137,5 @@ class UserServiceImplTest {
 
         verify(userRepository, times(1)).findAll();
     }
+
 }
