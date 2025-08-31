@@ -416,8 +416,8 @@ class ItemServiceImplTest {
     void search_withVeryLongQuery() {
         String longQuery = "a".repeat(1000);
         List<ItemDto> result = service.search(1, longQuery);
-        // Проверяем что не падает и возвращает результат
     }
+
     @Test
     void getAllItems_emptyList() {
         when(itemRepository.findAllByOwnerIdOrderById(1)).thenReturn(List.of());
