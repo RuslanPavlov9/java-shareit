@@ -4,13 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 
-/**
- * Запрос вещи
- */
 @Entity
 @NoArgsConstructor
 @Table(name = "requests", schema = "public")
