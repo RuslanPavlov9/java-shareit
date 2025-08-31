@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingSimpleDto;
 import ru.practicum.shareit.comment.dto.CommentDto;
 
 import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 
 @NoArgsConstructor

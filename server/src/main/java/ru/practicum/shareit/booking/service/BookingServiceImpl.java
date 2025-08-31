@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.AccessViolationException;
 import ru.practicum.shareit.exception.DataValidationException;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -56,7 +57,6 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("Вы не можете бронировать собственные вещи");
         }
 
-        // Оставляем зазор на сетевые задержки
         LocalDateTime now = LocalDateTime.now().minusSeconds(10);
         if (createDto.getStart() == null || createDto.getEnd() == null) {
             throw new ValidationException("Дата начала и окончания должны быть заполнены");
@@ -86,7 +86,7 @@ public class BookingServiceImpl implements BookingService {
 
         User user = userRepository.getUserById(userId);
         if (user == null) {
-            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
+            throw new ForbiddenException("Пользователь с id=" + userId + " не найден");
         }
 
         Booking booking = bookingRepository.getBookingById(bookingId);
@@ -108,16 +108,14 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (userId.equals(itemOwnerId)) {
-            // Если бронирование подтверждает владелец вещи
             booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         } else if (userId.equals(bookerId)) {
-            // Если бронирование подтверждает пользователь, который осуществляет бронирование
             if (approved) {
                 throw new IllegalArgumentException("Вы можете только отменить это бронирование!");
             }
             booking.setStatus(BookingStatus.CANCELED);
         } else {
-            throw new DataValidationException("Вы не можете подтверждать это бронирование!");
+            throw new DataValidationException("Вы не можете подтверждать это бронирование.");
         }
 
         return mapper.map(bookingRepository.save(booking), BookingDto.class);

@@ -13,6 +13,7 @@ import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.user.UserController;
 
 import jakarta.validation.ValidationException;
+
 import java.util.Map;
 
 @RestControllerAdvice(assignableTypes = {
@@ -85,6 +86,12 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleDataValidationException(final DataValidationException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleDataForbiddenException(final ForbiddenException e) {
         return Map.of("error", e.getMessage());
     }
 

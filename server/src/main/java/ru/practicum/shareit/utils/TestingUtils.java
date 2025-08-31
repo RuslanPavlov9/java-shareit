@@ -42,9 +42,6 @@ public final class TestingUtils {
 
     public static final LocalDateTime END_DATE = LocalDateTime.parse(END_AS_STRING, DATE_TIME_FORMATTER);
 
-    /**
-     * Получить текущее время с точностью до секунды
-     */
     public static LocalDateTime now() {
         return LocalDateTime.parse(LocalDateTime.now().format(DATE_TIME_FORMATTER), DATE_TIME_FORMATTER);
     }
@@ -66,7 +63,7 @@ public final class TestingUtils {
     }
 
     public static ItemDto createItemDto() {
-      return createItemDto(1);
+        return createItemDto(1);
     }
 
     public static ItemDto createItemDto(Integer id) {

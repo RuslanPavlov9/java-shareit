@@ -22,6 +22,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
 
         itemDto.setComments(
                 commentRepository.getAllByItemId(itemId).stream()
-                        .map((comment) -> mapper.map(comment,CommentDto.class))
+                        .map((comment) -> mapper.map(comment, CommentDto.class))
                         .collect(Collectors.toList())
         );
 
