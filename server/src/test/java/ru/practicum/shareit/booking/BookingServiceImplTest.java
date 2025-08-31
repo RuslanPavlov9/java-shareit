@@ -17,6 +17,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.AccessViolationException;
 import ru.practicum.shareit.exception.DataValidationException;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -203,8 +204,8 @@ class BookingServiceImplTest {
 
     @Test
     void updateStatus_withWrongUserId() {
-        NotFoundException e = assertThrows(
-                NotFoundException.class,
+        ForbiddenException e = assertThrows(
+                ForbiddenException.class,
                 () -> bookingService.updateStatus(TestingUtils.INVALID_ID, 1, true)
         );
         assertEquals(e.getMessage(), "Пользователь с id=" + TestingUtils.INVALID_ID + " не найден");
